@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <utility>
+#include <libplatform/libplatform.h>
 
 #if defined(WIN32)
 #define VC_EXTRALEAN
@@ -146,6 +147,26 @@ struct array_buffer_allocator : v8::ArrayBuffer::Allocator
 	}
 };
 static array_buffer_allocator array_buffer_allocator_;
+
+std::unique_ptr<v8::Platform> context::create_platform(const char* flags, bool initICU, const char* initExternalStartupDataArgv0)
+{
+	// allow Isolate::RequestGarbageCollectionForTesting() before Initialize()
+	// for v8pp::class_ tests
+	v8::V8::SetFlagsFromString(flags);
+
+	if (initICU)
+		v8::V8::InitializeICU();
+	if (initExternalStartupDataArgv0)
+		v8::V8::InitializeExternalStartupData(initExternalStartupDataArgv0);
+#if V8_MAJOR_VERSION >= 7
+	std::unique_ptr<v8::Platform> platform(v8::platform::NewDefaultPlatform());
+#else
+	std::unique_ptr<v8::Platform> platform(v8::platform::CreateDefaultPlatform());
+#endif
+	v8::V8::InitializePlatform(platform.get());
+	v8::V8::Initialize();
+	return platform;
+}
 
 v8::Isolate* context::create_isolate(v8::ArrayBuffer::Allocator* allocator)
 {

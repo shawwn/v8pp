@@ -9,6 +9,10 @@
 #include "v8pp/convert.hpp"
 #include "v8pp/function.hpp"
 
+namespace v8 {
+	class Platform;
+}
+
 namespace v8pp {
 
 class module;
@@ -20,6 +24,7 @@ class class_;
 class context
 {
 public:
+	static std::unique_ptr<v8::Platform> create_platform(const char* flags = "--expose_gc", bool initICU = false, const char* initExternalStartupDataArgv0 = nullptr);
 	static v8::Isolate* create_isolate(v8::ArrayBuffer::Allocator* allocator = nullptr);
 
 	struct options
