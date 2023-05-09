@@ -26,7 +26,23 @@ if(V8PP_HEADER_ONLY)
 	endif()
 endif()
 
-target_link_libraries(v8pp_test v8pp ${CMAKE_DL_LIBS})
+#set(CMAKE_CXX_RTTI OFF)
+if(MSVC)
+	set(V8PP_COMPILE_OPTIONS /GR- /EHsc /permissive- /W4)
+	# disable specific warnings
+	list(APPEND V8PP_COMPILE_OPTIONS /wd4190)
+	# set warning level 3 for system headers
+	list(APPEND V8PP_COMPILE_OPTIONS /experimental:external /external:anglebrackets /external:W3)
+else()
+	set(V8PP_COMPILE_OPTIONS -frtti -fexceptions -Wall -Wextra -Wpedantic)
+endif()
+#set(V8PP_LINK_OPTIONS --eh-frame-hdr)
+
+target_link_libraries(v8pp_test v8pp)# ${CMAKE_DL_LIBS})
+target_compile_options(v8pp_test PUBLIC ${V8PP_COMPILE_OPTIONS})
+target_link_options(v8pp_test PUBLIC ${V8PP_LINK_OPTIONS})
+message(STATUS "FOO: ${V8PP_COMPILE_OPTIONS}")
+message(STATUS "FOO: ${V8PP_LINK_OPTIONS}")
 
 add_test(v8pp_test ${PROJECT_BINARY_DIR}/v8pp_test --version --run-tests)
 
