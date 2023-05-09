@@ -127,7 +127,15 @@ try
 	else
 	{
 		auto obj = v8pp::class_<GetClass, Traits>::unwrap_object(info.GetIsolate(), info.This());
-		property_get(property.getter, name, info, *obj);
+		if (obj != nullptr) // Fixes foo.constructor.prototype.name crash
+		{
+			property_get(property.getter, name, info, *obj);
+		}
+		else
+		{
+			// TODO: figure out why the unwrap failed.
+			info.GetIsolate()->ThrowError("Failed to unwrap object");
+		}
 	}
 }
 catch (std::exception const& ex)
