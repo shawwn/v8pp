@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
+#include <iostream>
 
 // containers
 #include <array>
@@ -185,9 +186,25 @@ void check_ex(std::string_view msg, F&& f)
 		ss << msg << " expected " << v8pp::detail::type_id<Ex>().name() << " exception";
 		check(ss.str(), false);
 	}
-	catch (Ex const&)
+#if TKTK || 1
+	catch (Ex const& ex)
 	{
+		std::cerr << ex.what() << std::endl;
 	}
+	catch (std::exception& ex)
+	{
+		std::cerr << "std::exception: " << ex.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "Unknown exception" << std::endl;
+	}
+#else
+	catch (std::exception const& ex)
+	{
+		std::cerr << ex.what() << std::endl;
+	}
+#endif
 }
 
 template<typename T>
