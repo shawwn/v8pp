@@ -62,6 +62,10 @@ V8PP_IMPL object_registry<Traits>::object_registry(v8::Isolate* isolate, type_in
 			{
 				args.GetReturnValue().Set(throw_ex(isolate, ex.what()));
 			}
+			catch (...)
+			{
+				args.GetReturnValue().Set(throw_ex(isolate, "C++ exception"));
+			}
 		}, external_data::set(isolate, this));
 
 	func_.Reset(isolate, func);
