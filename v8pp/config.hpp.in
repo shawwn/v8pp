@@ -36,6 +36,17 @@
 #define V8PP_PLUGIN_INIT(isolate) extern "C" V8PP_EXPORT \
 v8::Local<v8::Value> V8PP_PLUGIN_INIT_PROC_NAME(isolate)
 
+// This is to suppress the following warning:
+//
+//   v8pp/plugins/console.cpp:29:1: warning: 'v8pp_module_init' has C-linkage specified, but returns
+//     user-defined type 'v8::Local<v8::Value>' which is incompatible with C [-Wreturn-type-c-linkage]
+//
+// I tried removing the "C" from extern "C" above, but then dlsym in v8pp/context.cpp failed to find
+// the import function "v8pp_module_init" due to C++ name mangling.
+//
+// I'm not sure there's a better solution. All other ideas I can think of have pretty big downsides.
+#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+
 #ifndef V8PP_HEADER_ONLY
 #define V8PP_HEADER_ONLY @V8PP_HEADER_ONLY@
 #endif
